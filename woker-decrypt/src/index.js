@@ -133,6 +133,8 @@ export default {
 					outStatus = fr.status;
 					outStatusText = fr.statusText;
 
+					console.log(filesize);
+
 					var decoder = new AesCTR(password, filesize);
 					if(start>0){
 						decoder.setPositionAsync(start);
