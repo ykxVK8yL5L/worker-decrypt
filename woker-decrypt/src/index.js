@@ -40,10 +40,6 @@ export default {
 				else if(url.length < 3 || url.indexOf('.') == -1 || url == "favicon.ico" || url == "robots.txt") {
 					return Response.redirect('https://baidu.com', 301)
 				}
-				//阻断
-				else if (blocker.check(url)) {
-					return Response.redirect('https://baidu.com', 301)
-				}
 				else {
 					//补上前缀 http://
 					url = url.replace(/https:(\/)*/,'https://').replace(/http:(\/)*/, 'http://')
