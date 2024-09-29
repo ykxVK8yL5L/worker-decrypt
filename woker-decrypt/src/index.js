@@ -101,7 +101,12 @@ export default {
 					}
 		
 					for (const [key, value] of fr.headers.entries()) {
-					  outHeaders.set(key, value);
+					  if (key.toLowerCase() !== 'content-disposition') {
+					    outHeaders.set(key, value); // 只有不等于Content-Disposition的头才会被添加
+					  }else{
+					    outHeaders.set(key, 'inline'); 
+					  }
+					  
 					}
 
 					outStatus = fr.status;
@@ -124,9 +129,10 @@ export default {
 
 			// const decoded_filename = Buffer.from(filename, 'base64').toString('utf-8');
 			//设置类型
-			if (outCt && outCt != "") {
-				outHeaders.set("content-type", outCt);
-			}
+			// if (outCt && outCt != "") {
+		    	//   outHeaders.set("content-type", outCt);
+		   	// }
+		    	outHeaders.set("content-type","video/mp4")
 		  
 			let response = new Response(outBody, {
 				status: outStatus,
