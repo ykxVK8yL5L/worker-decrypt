@@ -128,10 +128,8 @@ export default {
 		
 					outStatus = fr.status;
 					outStatusText = fr.statusText;
-
-					console.log(filesize);
-
-					var decoder = new AesCTR(password, filesize);
+					const decoded_password = Buffer.from(password, 'base64').toString('utf-8');
+					var decoder = new AesCTR(decoded_password, filesize);
 					if(start>0){
 						decoder.setPositionAsync(start);
 					}
