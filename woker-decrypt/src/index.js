@@ -57,33 +57,11 @@ export default {
 
 					const password = requrl.searchParams.get("enc_password");
 					const filesize = requrl.searchParams.get("enc_filesize");
+					const filename = requrl.searchParams.get("enc_filename");
 		
-					// if(requrl.hostname.includes('.xunleix.com')){
-					//     for (let h of he) {
-					//         if (!['content-length', 'cf-ipcountry', 'x-real-ip', 'cf-connecting-ip', 'server'].includes(h[0])) {
-					//             fp.headers[h[0]] = h[1]; // 其他头部正常添加
-					//         }
-					//     }
-					//     fp.headers["User-Agent"] = 'AndroidDownloadManager/12 (Linux; U; Android 12; M2004J7AC Build/SP1A.210812.016)'; 
-					// }else{
-					//     for (let h of he) {
-					//         if (!['content-length'].includes(h[0])) {
-					//             fp.headers[h[0]] = h[1];
-					//         }
-					//     }
-					// }
-		
-					if(requrl.hostname=='api-pan.xunleix.com'){
-						for (let h of he) {
-							if (!['content-length', 'cf-ipcountry', 'x-real-ip', 'cf-connecting-ip', 'server'].includes(h[0])) {
-								fp.headers[h[0]] = h[1]; // 其他头部正常添加
-							}
-						}
-					}else{
-						for (let h of he) {
-							if (!['content-length'].includes(h[0])) {
-								fp.headers[h[0]] = h[1];
-							}
+					for (let h of he) {
+						if (!['content-length'].includes(h[0])) {
+							fp.headers[h[0]] = h[1];
 						}
 					}
 		
@@ -125,7 +103,7 @@ export default {
 					for (const [key, value] of fr.headers.entries()) {
 					  outHeaders.set(key, value);
 					}
-		
+
 					outStatus = fr.status;
 					outStatusText = fr.statusText;
 					const decoded_password = Buffer.from(password, 'base64').toString('utf-8');
@@ -143,7 +121,8 @@ export default {
 					msg: JSON.stringify(err.stack) || err
 				});
 			}
-		  
+
+			// const decoded_filename = Buffer.from(filename, 'base64').toString('utf-8');
 			//设置类型
 			if (outCt && outCt != "") {
 				outHeaders.set("content-type", outCt);
