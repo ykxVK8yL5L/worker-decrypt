@@ -56,9 +56,8 @@ jobs:
       - name: 从服务器同步文件
         run: |
           mkdir videos
-          rclone ls files:
-          #rclone sync files: videos
-          #ls videos
+          rclone sync files: videos
+          ls videos
       
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v1.2.3
