@@ -1,0 +1,79 @@
+name: Copy To Rclone on Mac
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      Url:
+        description: 'Download Url'
+        required: false
+        default: ''
+      Page:
+        description: 'Page Count'
+        required: false
+        default: '1'
+
+env:
+  FILE_PATH: 'downloads'
+  
+jobs:
+  build:
+    runs-on: macos-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+          fetch-depth: 0 
+      
+      - name: 增加可用空间 (删除dotnet, android、haskell、CodeQL)
+        shell: bash
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /System/Volumes/Data/Library/Developer/CoreSimulator/Images/*.dmg
+          echo "硬盘详情："
+          df -h
+
+      - name: Rclone Install
+        run: |
+            curl https://rclone.org/install.sh | sudo bash
+
+      - name: Check depends
+        run: |
+            rclone -V
+            aria2c -v
+            node -v
+            python -V
+            
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+           
+      - name: Config Rclone
+        run: |
+          printf "$RCLONE_ENV_FILE" >> ~/.config/rclone/rclone.conf
+        shell: bash
+        env:
+          RCLONE_ENV_FILE : ${{secrets.RCLONE_CONF}}
+
+      - name: install prerequisites
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip install lk21==1.5.61 pymongo pymongo[srv] pymongo[tls] certifi SQLAlchemy psycopg2-binary lxml beautifulsoup4 curl_cffi
+          
+      - name: 从服务器同步文件
+        run: |
+          mkdir videos
+          rclone sync files:/ videos
+          ls videos
+      
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@v1.2.3
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 0
