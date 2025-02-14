@@ -57,10 +57,18 @@ jobs:
         run: |
           mkdir videos
           rclone sync files: videos
-          ls videos
+      - name: 执行脚本
+        run: |
+          cd videos
+          python video.py -url="${{ github.event.inputs.Url}}" -page=${{ github.event.inputs.Page}}
+          
+      - name: 上传文件
+        run: |
+          zip -r videos_`date '+%Y%m%d_%H_%M'`.zip videos/
+          rclone copy videos_`date '+%Y%m%d_%H_%M'`.zip files:
       
       - name: Delete workflow runs
-        uses: Mattraks/delete-workflow-runs@v1.2.3
+        uses: Mattraks/delete-workflow-runs@v2
         with:
           token: ${{ github.token }}
           repository: ${{ github.repository }}
