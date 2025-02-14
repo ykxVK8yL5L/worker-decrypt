@@ -69,7 +69,6 @@ jobs:
           rclone sync videos files:
       
       - name: Download another right now
-        if: steps.downloading.outputs.filename != '' && !cancelled() && !failure()
         run: |
             curl -L \
             -X POST \
@@ -85,4 +84,4 @@ jobs:
           token: ${{ github.token }}
           repository: ${{ github.repository }}
           retain_days: 0
-          keep_minimum_runs: 0
+          keep_minimum_runs: 1
