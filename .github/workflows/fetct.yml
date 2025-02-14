@@ -62,7 +62,7 @@ jobs:
       - name: install prerequisites
         run: |
           python -m pip install --upgrade pip wheel
-          pip install lk21==1.5.61 pymongo pymongo[srv] pymongo[tls] certifi SQLAlchemy psycopg2-binary lxml beautifulsoup4 curl_cffi
+          pip install lk21==1.5.61 pymongo pymongo[srv] pymongo[tls] certifi SQLAlchemy lxml beautifulsoup4 curl_cffi
           
       - name: 从服务器同步文件
         run: |
