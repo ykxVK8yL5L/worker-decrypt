@@ -67,7 +67,7 @@ jobs:
       - name: 从服务器同步文件
         run: |
           mkdir videos
-          rclone sync files:/ videos
+          rclone sync files: videos
           ls videos
       
       - name: Delete workflow runs
