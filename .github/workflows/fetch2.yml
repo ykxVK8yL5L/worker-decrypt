@@ -46,7 +46,7 @@ jobs:
           printf "$RCLONE_ENV_FILE" >> ~/.config/rclone/rclone.conf
         shell: bash
         env:
-          RCLONE_ENV_FILE : ${{secrets.RCLONE_CONF}}
+          RCLONE_ENV_FILE : ${{secrets.RCLONE_HUGGINGFACE}}
 
       - name: install prerequisites
         run: |
