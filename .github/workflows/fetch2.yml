@@ -1,0 +1,75 @@
+name: Fetch 
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      Folder:
+        description: 'Folder'
+        required: true
+        default: 'files'
+      Keyword:
+        description: 'Keyword'
+        required: true
+        default: ''
+
+env:
+  FILE_PATH: 'downloads'
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+          fetch-depth: 0 
+      
+      - name: Rclone Install
+        run: |
+            curl https://rclone.org/install.sh | sudo bash
+            
+      - name: Check depends
+        run: |
+            rclone -V
+            aria2c -v
+            node -v
+            python -V
+            
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+           
+      - name: Config Rclone
+        run: |
+          printf "$RCLONE_ENV_FILE" >> ~/.config/rclone/rclone.conf
+        shell: bash
+        env:
+          RCLONE_ENV_FILE : ${{secrets.RCLONE_CONF}}
+
+      - name: install prerequisites
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip install lk21==1.5.61 pymongo pymongo[srv] pymongo[tls] certifi SQLAlchemy lxml beautifulsoup4 curl_cffi requests cloudscraper
+          
+      - name: 从服务器同步文件
+        run: |
+          mkdir videos
+          rclone sync huggingface:/${{ github.event.inputs.Folder}} videos
+      - name: 执行脚本
+        run: |
+          cd videos
+          python main.py -series="${{ github.event.inputs.Keyword}}"
+          
+      - name: 同步服务器文件
+        run: |
+          rclone sync videos huggingface:/${{ github.event.inputs.Folder}}
+      
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@v1.2.3
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 1
