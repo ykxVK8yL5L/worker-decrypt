@@ -1,4 +1,4 @@
-name: Fetch 
+name: Fetch in folder
 on:
   repository_dispatch:
   workflow_dispatch:
