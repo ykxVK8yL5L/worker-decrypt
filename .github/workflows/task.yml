@@ -1,4 +1,4 @@
-name: Fetch in folder
+name: Task
 on:
   repository_dispatch:
   workflow_dispatch:
