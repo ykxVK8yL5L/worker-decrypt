@@ -64,6 +64,7 @@ jobs:
           
       - name: 同步服务器文件
         run: |
+          rclone delete huggingface:/${{ github.event.inputs.Folder}}/videos.db
           rclone sync videos huggingface:/${{ github.event.inputs.Folder}}
       
       - name: Delete workflow runs
