@@ -1,0 +1,71 @@
+name: Playwright
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      Url:
+        description: 'Headless'
+        required: false
+        default: 'false'
+
+env:
+  HEADLESS: false
+  
+jobs:
+  build:
+    runs-on: macos-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: true # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+          fetch-depth: 0 
+      
+      - name: 增加可用空间 (删除dotnet, android、haskell、CodeQL)
+        shell: bash
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /System/Volumes/Data/Library/Developer/CoreSimulator/Images/*.dmg
+          echo "硬盘详情："
+          df -h
+
+      - name: Rclone Install
+        run: |
+            curl https://rclone.org/install.sh | sudo bash
+
+      - name: Check depends
+        run: |
+            rclone -V
+            python -V
+            
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+           
+      - name: Config Rclone
+        run: |
+          printf "$RCLONE_ENV_FILE" >> ~/.config/rclone/rclone.conf
+        shell: bash
+        env:
+          RCLONE_ENV_FILE : ${{secrets.RCLONE_CONF_TESTJE}}
+        
+      - name: Install prerequisites
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip install cloakbrowser
+
+      - uses: browser-actions/setup-chrome@v2
+        with:
+          install-chromedriver: true
+
+      - name: Run code
+        run: |
+            python sign.py
+
+
+
+          
