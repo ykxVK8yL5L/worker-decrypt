@@ -39,7 +39,7 @@ jobs:
 
       - name: Run code
         run: |
-            python sign.py
+            python sign.py --email="${{ secrets.IIOS_EMAIL }}" --password="${{ secrets.IIOS_PASSWORD }}"
 
 
 
