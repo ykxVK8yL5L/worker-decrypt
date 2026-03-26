@@ -13,10 +13,10 @@ if args.email:
     # 定位输入框并输入邮箱
     email_input = page.locator('input[placeholder="请输入邮箱"]')
     if email_input.is_visible():
-        email_input.fill(email)
+        email_input.fill(args.email)
         # 定位输入框并输入密码
         password_input = page.locator('input[placeholder="请输入密码"]')
-        password_input.fill(password)
+        password_input.fill(args.password)
         # 点击登录并等待页面跳转
         with page.expect_navigation():
             page.get_by_text("提交登录").click()
