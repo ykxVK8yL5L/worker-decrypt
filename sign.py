@@ -1,7 +1,12 @@
-from cloakbrowser import launch
+import asyncio
+from cloakbrowser import launch_async
 
-browser = launch(headless=False)
-page = browser.new_page()
-page.goto("https://www.iios.fun")
-print(page.content())
-browser.close()
+async def main():
+    print("start...")
+    browser = await launch_async()
+    page = await browser.new_page()
+    await page.goto("https://www.ioos.fun")
+    print(await page.title())
+    await browser.close()
+
+asyncio.run(main())
