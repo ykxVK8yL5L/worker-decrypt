@@ -32,10 +32,13 @@ jobs:
       - name: Install prerequisites
         run: |
           python -m pip install --upgrade pip wheel
-          pip install cloakbrowser
-          python -m cloakbrowser install
-          python -m cloakbrowser info   
+          pip install -r requirements.txt
+          playwright install firefox --with-deps 
 
+      - name: Get firefox playwright
+        run: |
+          FIREFOX_PATH=$(python3 -c "from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.firefox.executable_path); p.stop()")
+          echo $FIREFOX_PATH
 
       - name: Run code
         run: |
