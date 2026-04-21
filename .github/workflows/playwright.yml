@@ -61,7 +61,7 @@ jobs:
               exit 1
           fi
           echo "下载文件: $FIRST_FILE"
-          rclone copy "scripts:/$FIRST_FILE" "scripts" --progress
+          rclone copy "scripts:/$FIRST_FILE" "./scripts" --progress
           unzip -o "sciprts/$FIRST_FILE" -d "scripts"
           ls scripts
 
