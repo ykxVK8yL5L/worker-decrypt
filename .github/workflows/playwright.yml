@@ -25,8 +25,8 @@ jobs:
         with:
           install-chromedriver: true
 
-      - name: Install jq
-        run: brew install jq
+      - name: Install Shell Depends
+        run: brew install jq unar
       
       - name: Rclone Install
         run: |
@@ -71,7 +71,7 @@ jobs:
               exit 1
           fi
           rclone copy "scripts:/$FIRST_FILE" "./temp" 
-          unzip -o CP936 "temp/$FIRST_FILE" -d "./scripts"
+          unar "temp/$FIRST_FILE" -o "./scripts"
           ls scripts
       
 
