@@ -53,8 +53,7 @@ jobs:
             libxrandr2 \
             xvfb \
             xauth \
-            xdg-utils \
-          && rm -rf /var/lib/apt/lists/*
+            xdg-utils 
       
       - name: Rclone Install
         run: |
