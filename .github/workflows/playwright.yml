@@ -51,12 +51,27 @@ jobs:
         run: |
           FIREFOX_PATH=$(python -c "from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.firefox.executable_path); p.stop()")
           echo "FIREFOX_PATH=$FIREFOX_PATH" >> $GITHUB_ENV
-
-      - name: Run code
+      
+      - name: Copy to local
         run: |
-            echo ${{ env.FIREFOX_PATH }}
-            rclone config
-            python sign.py --email="${{ secrets.IIOS_EMAIL }}" --password="${{ secrets.IIOS_PASSWORD }}"
+          mkdir scripts
+          FIRST_FILE=$(rclone lsf --files-only --max-depth 1 --format "pt" "scripts" | sort -r | head -n 1 | awk '{print $2}')
+          if [ -z "$FIRST_FILE" ]; then
+              echo "没有找到文件"
+              exit 1
+          fi
+          echo "下载文件: $FIRST_FILE"
+          rclone copy "scripts:/$FIRST_FILE" "scripts" --progress
+          unzip -o "sciprts/$FIRST_FILE" -d "scripts"
+          ls scripts
+
+      # - name: Run code
+      #   continue-on-error: true
+      #   run: |
+      #       echo ${{ env.FIREFOX_PATH }}
+      #       python sign.py --email="${{ secrets.IIOS_EMAIL }}" --password="${{ secrets.IIOS_PASSWORD }}"
+      
+
 
 
 
