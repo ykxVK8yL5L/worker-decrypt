@@ -106,8 +106,17 @@ jobs:
           cd ../
           rclone copy "$ZIP_NAME" scripts:/
           sleep 3s
-          LAST_FILE= $(rclone lsjson scripts: | jq -r 'sort_by(.ModTime) | first | .Path')
-          rclone delete "scripts:/$LAST_FILE"
+          files_json=$(rclone lsjson scripts:)
+          count=$(echo "$files_json" | jq 'length')
+          if [ "$count" -gt 2 ]; then
+            echo "$files_json" \
+              | jq -r 'sort_by(.ModTime) | first | .Path' \
+              | while read -r f; do
+                  rclone delete "scripts:$f"
+                done
+          fi
+          #LAST_FILE= $(rclone lsjson scripts: | jq -r 'sort_by(.ModTime) | first | .Path')
+          #rclone delete "scripts:/$LAST_FILE"
       
       - name: Delete workflow runs
         run: |
