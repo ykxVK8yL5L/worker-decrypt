@@ -72,10 +72,22 @@ jobs:
           fi
           rclone copy "scripts:/$FIRST_FILE" "./temp" 
           unar "temp/$FIRST_FILE" -o "./scripts"
-          ls scripts
+
+      - name: Sign 215
+        continue-on-error: true
+        run: |
+          python scripts/scripts/215.py
       
-
-
-
+      - name: Sign voapi
+        continue-on-error: true
+        run: |
+          python scripts/scripts/voapi.py
+      
+      - name: Sign hotmail
+        continue-on-error: true
+        run: |
+          cd scripts/scripts/hotmail
+          python register.py > /dev/null 2>&1
+      
 
           
