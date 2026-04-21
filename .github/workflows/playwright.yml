@@ -25,85 +25,17 @@ jobs:
         with:
           install-chromedriver: true
 
-      - name: Install Shell Depends
-        run: brew install jq unar
-      
-      - name: Rclone Install
-        run: |
-            curl https://rclone.org/install.sh | sudo bash
-
       - name: Check depends
         run: |
-            rclone -V
             python -V
-      
-      - name: Config Rclone
-        run: |
-          printf "$RCLONE_ENV_FILE" >> ~/.config/rclone/rclone.conf
-        shell: bash
-        env:
-          RCLONE_ENV_FILE : ${{secrets.RCLONE_CONF}}
-            
+
       - name: Install Python prerequisites
         run: |
           python -m pip install --upgrade pip wheel
           pip install -r requirements.txt
           playwright install firefox --with-deps 
 
-      - name: Get firefox playwright
-        run: |
-          FIREFOX_PATH=$(python -c "from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.firefox.executable_path); p.stop()")
-          echo "FIREFOX_PATH=$FIREFOX_PATH" >> $GITHUB_ENV
-      
-      # - name: Run code
-      #   continue-on-error: true
-      #   run: |
-      #       echo ${{ env.FIREFOX_PATH }}
-      #       python sign.py --email="${{ secrets.IIOS_EMAIL }}" --password="${{ secrets.IIOS_PASSWORD }}"
-
-      - name: Copy to local
-        run: |
-          mkdir temp
-          mkdir scripts
-          FIRST_FILE=$(rclone lsjson scripts: | jq -r 'sort_by(.ModTime) | last | .Path')
-          if [ -z "$FIRST_FILE" ]; then
-              echo "没有找到文件"
-              exit 1
-          fi
-          rclone copy "scripts:/$FIRST_FILE" "./temp" 
-          unar -D "temp/$FIRST_FILE" -o "./scripts"
-
-      - name: Sign 215
+      - name: Run code
         continue-on-error: true
         run: |
-          cd scripts/scripts
-          python 215.py
-      
-      - name: Sign voapi
-        continue-on-error: true
-        run: |
-          cd scripts/scripts
-          python voapi.py
-      
-      - name: Sign hohai
-        continue-on-error: true
-        run: |
-          cd scripts/scripts
-          python hohai.py
-      
-      - name: Sign hotmail
-        continue-on-error: true
-        run: |
-          cd scripts/scripts/hotmail
-          #python register.py > /dev/null 2>&1
-          python register.py >
-      
-      - name: Copy to Cloud
-        run: |
-          TIME=$(date +%Y%m%d_%H%M%S)
-          ZIP_NAME="backup_${TIME}.zip"
-          cd "scripts" && zip -r -q "../$ZIP_NAME" .
-          cd ../
-          rclone copy "$ZIP_NAME" scripts:/
-      
-          
+            python sign.py --email="${{ secrets.IIOS_EMAIL }}" --password="${{ secrets.IIOS_PASSWORD }}"

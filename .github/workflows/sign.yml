@@ -1,0 +1,133 @@
+name: Run Sign Scripts
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      Url:
+        description: 'Headless'
+        required: false
+        default: 'false'
+
+env:
+  HEADLESS: false
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: true # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+          fetch-depth: 0 
+
+
+      - name: Install Shell Depends
+        run: sudo apt update \
+          && apt-get install -y --no-install-recommends \
+            curl \
+            jq \ 
+            ca-certificates \
+            fonts-liberation \
+            libasound2 \
+            libatk-bridge2.0-0 \
+            libatk1.0-0 \
+            libc6 \
+            libcairo2 \
+            libcups2 \
+            libdbus-1-3 \
+            libdrm2 \
+            libgbm1 \
+            libglib2.0-0 \
+            libgtk-3-0 \
+            libnspr4 \
+            libnss3 \
+            libpango-1.0-0 \
+            libx11-6 \
+            libx11-xcb1 \
+            libxcb1 \
+            libxcomposite1 \
+            libxdamage1 \
+            libxext6 \
+            libxfixes3 \
+            libxrandr2 \
+            xvfb \
+            xauth \
+            xdg-utils \
+          && rm -rf /var/lib/apt/lists/*
+      
+      - name: Rclone Install
+        run: |
+            curl https://rclone.org/install.sh | sudo bash
+
+      - name: Check depends
+        run: |
+            rclone -V
+            python -V
+      
+      - name: Config Rclone
+        run: |
+          printf "$RCLONE_ENV_FILE" >> ~/.config/rclone/rclone.conf
+        shell: bash
+        env:
+          RCLONE_ENV_FILE : ${{secrets.RCLONE_CONF}}
+            
+      - name: Install Python prerequisites
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip install -r requirements.txt
+          playwright install firefox --with-deps 
+          playwright install chromium --with-deps
+
+      - name: Get firefox playwright
+        run: |
+          FIREFOX_PATH=$(python -c "from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.firefox.executable_path); p.stop()")
+          echo "FIREFOX_PATH=$FIREFOX_PATH" >> $GITHUB_ENV
+          Xvfb :99 -screen 0 1920x1080x24 &
+
+      - name: Copy to local
+        run: |
+          mkdir temp
+          mkdir scripts
+          FIRST_FILE=$(rclone lsjson scripts: | jq -r 'sort_by(.ModTime) | last | .Path')
+          if [ -z "$FIRST_FILE" ]; then
+              echo "没有找到文件"
+              exit 1
+          fi
+          rclone copy "scripts:/$FIRST_FILE" "./temp" 
+          unzip -o "temp/$FIRST_FILE" -d "./scripts"
+
+      - name: Sign 215
+        continue-on-error: true
+        run: |
+          cd scripts/scripts
+          python 215.py
+      
+      - name: Sign voapi
+        continue-on-error: true
+        run: |
+          cd scripts/scripts
+          python voapi.py
+      
+      - name: Sign hohai
+        continue-on-error: true
+        run: |
+          cd scripts/scripts
+          python hohai.py
+      
+      - name: Sign hotmail
+        continue-on-error: true
+        run: |
+          cd scripts/scripts/hotmail
+          #python register.py > /dev/null 2>&1
+          export DISPLAY=:99 && python register.py --firefox-path ${{env.FIREFOX_PATH}} 
+      
+      - name: Copy to Cloud
+        run: |
+          TIME=$(date +%Y%m%d_%H%M%S)
+          ZIP_NAME="backup_${TIME}.zip"
+          cd "scripts" && zip -r -q "../$ZIP_NAME" .
+          cd ../
+          rclone copy "$ZIP_NAME" scripts:/
+      
+          
