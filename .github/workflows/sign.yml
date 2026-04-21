@@ -110,7 +110,7 @@ jobs:
           count=$(echo "$files_json" | jq 'length')
           if [ "$count" -gt 2 ]; then
             echo "$files_json" \
-              | jq -r 'sort_by(.ModTime) | first | .Path' \
+              | jq -r 'sort_by(.ModTime) | .[:-2] | .[].Path' \
               | while read -r f; do
                   rclone delete "scripts:$f"
                 done
