@@ -23,7 +23,7 @@ jobs:
 
 
       - name: Install Shell Depends
-        run: sudo apt-get update && apt-get install -y --no-install-recommends \
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends \
             curl \
             jq \
             ca-certificates \
@@ -127,5 +127,13 @@ jobs:
           cd "scripts" && zip -r -q "../$ZIP_NAME" .
           cd ../
           rclone copy "$ZIP_NAME" scripts:/
+      
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 0
       
           
