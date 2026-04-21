@@ -105,6 +105,7 @@ jobs:
           cd "scripts" && zip -r -q "../$ZIP_NAME" .
           cd ../
           rclone copy "$ZIP_NAME" scripts:/
+          sleep 3s
           LAST_FILE= $(rclone lsjson scripts: | jq -r 'sort_by(.ModTime) | first | .Path')
           rclone delete "scripts:/$LAST_FILE"
       
