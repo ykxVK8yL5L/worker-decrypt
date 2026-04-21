@@ -119,6 +119,8 @@ jobs:
           #rclone delete "scripts:/$LAST_FILE"
       
       - name: Delete workflow runs
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh workflow run delruns.yml
       
