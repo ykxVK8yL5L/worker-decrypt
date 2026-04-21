@@ -38,10 +38,11 @@ jobs:
       - name: Get firefox playwright
         run: |
           FIREFOX_PATH=$(python -c "from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.firefox.executable_path); p.stop()")
-          echo $FIREFOX_PATH
+          echo "FIREFOX_PATH=$FIREFOX_PATH" >> $GITHUB_ENV
 
       - name: Run code
         run: |
+            echo ${{ env.FIREFOX_PATH }}
             python sign.py --email="${{ secrets.IIOS_EMAIL }}" --password="${{ secrets.IIOS_PASSWORD }}"
 
 
