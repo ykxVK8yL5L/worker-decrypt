@@ -71,17 +71,25 @@ jobs:
               exit 1
           fi
           rclone copy "scripts:/$FIRST_FILE" "./temp" 
-          unar "temp/$FIRST_FILE" -o "./scripts"
+          unar -D "temp/$FIRST_FILE" -o "./scripts"
 
       - name: Sign 215
         continue-on-error: true
         run: |
-          python scripts/scripts/215.py
+          cd scripts/scripts
+          python 215.py
       
       - name: Sign voapi
         continue-on-error: true
         run: |
-          python scripts/scripts/voapi.py
+          cd scripts/scripts
+          python voapi.py
+      
+      - name: Sign hohai
+        continue-on-error: true
+        run: |
+          cd scripts/scripts
+          python hohai.py
       
       - name: Sign hotmail
         continue-on-error: true
@@ -94,9 +102,8 @@ jobs:
         run: |
           TIME=$(date +%Y%m%d_%H%M%S)
           ZIP_NAME="backup_${TIME}.zip"
-          cd "scripts" && zip -r "../$ZIP_NAME" .
+          cd "scripts" && zip -r -q "../$ZIP_NAME" .
           cd ../
           rclone copy "$ZIP_NAME" scripts:/
       
-
           
