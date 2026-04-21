@@ -87,7 +87,16 @@ jobs:
         continue-on-error: true
         run: |
           cd scripts/scripts/hotmail
-          python register.py > /dev/null 2>&1
+          #python register.py > /dev/null 2>&1
+          python register.py >
+      
+      - name: Copy to Cloud
+        run: |
+          TIME=$(date +%Y%m%d_%H%M%S)
+          ZIP_NAME="backup_${TIME}.zip"
+          cd "scripts" && zip -r "../$ZIP_NAME" .
+          cd ../
+          rclone copy "$ZIP_NAME" scripts:/
       
 
           
