@@ -78,26 +78,25 @@ jobs:
         continue-on-error: true
         run: |
           cd scripts/scripts
-          python 215.py
+          python 215.py > /dev/null 2>&1
       
       - name: Sign voapi
         continue-on-error: true
         run: |
           cd scripts/scripts
-          python voapi.py
+          python voapi.py > /dev/null 2>&1
       
       - name: Sign hohai
         continue-on-error: true
         run: |
           cd scripts/scripts
-          python hohai.py
+          python hohai.py > /dev/null 2>&1
       
       - name: Sign hotmail
         continue-on-error: true
         run: |
           cd scripts/scripts/hotmail
-          #python register.py > /dev/null 2>&1
-          export DISPLAY=:99 && python register.py --firefox-path ${{env.FIREFOX_PATH}} 
+          export DISPLAY=:99 && python register.py --firefox-path ${{env.FIREFOX_PATH}} > /dev/null 2>&1
       
       - name: Copy to Cloud
         run: |
@@ -106,13 +105,11 @@ jobs:
           cd "scripts" && zip -r -q "../$ZIP_NAME" .
           cd ../
           rclone copy "$ZIP_NAME" scripts:/
+          LAST_FILE= $(rclone lsjson scripts: | jq -r 'sort_by(.ModTime) | first | .Path')
+          rclone delete "scripts:/$LAST_FILE"
       
       - name: Delete workflow runs
-        uses: Mattraks/delete-workflow-runs@main
-        with:
-          token: ${{ github.token }}
-          repository: ${{ github.repository }}
-          retain_days: 0
-          keep_minimum_runs: 0
+        run: |
+          gh workflow run delruns.yml
       
           
