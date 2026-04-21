@@ -55,7 +55,7 @@ jobs:
       - name: Copy to local
         run: |
           mkdir scripts
-          FIRST_FILE=$(rclone lsf --files-only --max-depth 1 --format "pt" "scripts" | sort -r | head -n 1 | awk '{print $2}')
+          FIRST_FILE=$(rclone lsf --files-only --max-depth 1 --format "pt" "scripts:" | sort -r | head -n 1 | awk '{print $2}')
           if [ -z "$FIRST_FILE" ]; then
               echo "没有找到文件"
               exit 1
