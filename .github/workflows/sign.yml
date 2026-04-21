@@ -23,7 +23,7 @@ jobs:
 
 
       - name: Install Shell Depends
-        run: sudo apt update \
+        run: sudo apt-get update \
           && apt-get install -y --no-install-recommends \
             curl \
             jq \ 
