@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       sign:
+        type: boolean
         description: 'sign'
         required: false
-        default: 'false'
 
 env:
   SIGN: ${{ inputs.sign }}
