@@ -3,13 +3,13 @@ on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
-      Url:
-        description: 'Headless'
+      sign:
+        description: 'sign'
         required: false
         default: 'false'
 
 env:
-  HEADLESS: false
+  SIGN: ${{ inputs.sign }}
   
 jobs:
   build:
@@ -75,18 +75,21 @@ jobs:
           unzip -o "temp/$FIRST_FILE" -d "./scripts"
 
       - name: Sign 215
+        if: env.SIGN == 'true'
         continue-on-error: true
         run: |
           cd scripts/scripts
           python 215.py > /dev/null 2>&1
       
       - name: Sign voapi
+        if: env.SIGN == 'true'
         continue-on-error: true
         run: |
           cd scripts/scripts
           python voapi.py > /dev/null 2>&1
       
       - name: Sign hohai
+        if: env.SIGN == 'true'
         continue-on-error: true
         run: |
           cd scripts/scripts
