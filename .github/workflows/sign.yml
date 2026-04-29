@@ -96,6 +96,7 @@ jobs:
           python hohai.py > /dev/null 2>&1
       
       - name: Sign hotmail
+        if: env.SIGN == 'false'
         continue-on-error: true
         run: |
           cd scripts/scripts/hotmail
