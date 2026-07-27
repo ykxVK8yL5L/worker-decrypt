@@ -3,50 +3,68 @@ import argparse
 import time
 import sys
 
+
 parser = argparse.ArgumentParser(description='Parse input data')
 parser.add_argument("--url", help="Url to Browse", default="")
 args = parser.parse_args()
 
-MAX_TIMEOUT = 600  # 最大执行时间 10分钟
-CHECK_INTERVAL = 5  # 每5秒检查一次
+
+TIMEOUT = 600       # 10分钟
+INTERVAL = 5        # 5秒检查一次
+
 
 if args.url:
-    start_time = time.time()
+
+    start = time.time()
+
     browser = launch()
+
     try:
         page = browser.new_page()
-        page.goto(args.url)
-
+        print(f"打开页面: {args.url}")
+        page.goto(
+            args.url,
+            wait_until="domcontentloaded",
+            timeout=120000
+        )
         while True:
-            elapsed = time.time() - start_time
-            
-            # 超时判断
-            if elapsed >= MAX_TIMEOUT:
-                print(f"失败: 超过最大执行时间 {MAX_TIMEOUT} 秒")
-                print(f"总耗时: {elapsed:.2f} 秒")
+            elapsed = time.time() - start
+            # 超时
+            if elapsed > TIMEOUT:
+                print("失败: Hugging Face启动超过10分钟")
                 sys.exit(1)
+            try:
+                title = page.title()
+                url = page.url
+            except Exception:
+                title = ""
+                url = ""
 
-            # 获取title
-            title = page.title()
-
-            print(f"当前title: {title}")
-            print(f"已运行: {elapsed:.2f} 秒")
-
-            # 判断title是否符合要求
-            if "Hugging Face – " not in title:
-                print("成功: 页面title已变化")
-                print(f"最终title: {title}")
-                print(f"执行耗时: {elapsed:.2f} 秒")
+            print(
+                f"[{elapsed:.0f}s] "
+                f"title={title} "
+                f"url={url}"
+            )
+            # 成功条件
+            if (
+                title
+                and
+                "Hugging Face – " not in title
+            ):
+                print("===================")
+                print("启动成功")
+                print("Title:", title)
+                print("URL:", url)
+                print(
+                    f"耗时: {elapsed:.2f}s"
+                )
                 sys.exit(0)
 
-            # 等待后继续检查
-            time.sleep(CHECK_INTERVAL)
-
+            time.sleep(INTERVAL)
     except Exception as e:
-        elapsed = time.time() - start_time
-        print(f"失败: {str(e)}")
-        print(f"执行耗时: {elapsed:.2f} 秒")
+        print("异常失败:", e)
         sys.exit(1)
 
     finally:
+
         browser.close()
