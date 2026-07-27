@@ -3,22 +3,16 @@ import argparse
 import time
 import sys
 
-
 parser = argparse.ArgumentParser(description='Parse input data')
 parser.add_argument("--url", help="Url to Browse", default="")
 args = parser.parse_args()
 
-
 TIMEOUT = 600       # 10分钟
 INTERVAL = 5        # 5秒检查一次
 
-
 if args.url:
-
     start = time.time()
-
     browser = launch()
-
     try:
         page = browser.new_page()
         print(f"打开页面: {args.url}")
