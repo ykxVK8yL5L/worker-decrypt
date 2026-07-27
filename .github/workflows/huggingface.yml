@@ -62,9 +62,7 @@ jobs:
           echo "FIREFOX_PATH=$FIREFOX_PATH" >> $GITHUB_ENV
           Xvfb :99 -screen 0 1920x1080x24 &
 
-     
       - name: Start Browse
-        if: env.url == 'true'
         continue-on-error: true
         run: |
           python huggingface.py --url ${{ inputs.url }} > /dev/null 2>&1
