@@ -74,10 +74,10 @@ jobs:
       #     cd scripts/scripts/hotmail
       #     export DISPLAY=:99 && python register.py --firefox-path ${{env.FIREFOX_PATH}} > /dev/null 2>&1
 
-      # - name: Delete workflow runs
-      #   env:
-      #     GH_TOKEN: ${{ github.token }}
-      #   run: |
-      #     gh workflow run delruns.yml
+      - name: Delete workflow runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run delruns.yml
       
           
