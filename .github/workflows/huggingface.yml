@@ -1,0 +1,85 @@
+name: Browse Huggingface Space Url
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      url:
+        type: string
+        description: 'url to browse'
+        required: true
+
+env:
+  URL: ${{ inputs.url }}
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: true # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+          fetch-depth: 0 
+
+      - name: Install Shell Depends
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends \
+              curl \
+              jq \
+              ca-certificates \
+              fonts-liberation \
+              xvfb \
+              xauth \
+              xdg-utils 
+      
+      # - name: Rclone Install
+      #   run: |
+      #       curl https://rclone.org/install.sh | sudo bash
+
+      # - name: Check depends
+      #   run: |
+      #       rclone -V
+      #       python -V
+      
+      # - name: Config Rclone
+      #   run: |
+      #     printf "$RCLONE_ENV_FILE" >> ~/.config/rclone/rclone.conf
+      #   shell: bash
+      #   env:
+      #     RCLONE_ENV_FILE : ${{secrets.RCLONE_CONF}}
+            
+      - name: Install Python prerequisites
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip install -r requirements.txt
+          playwright install firefox --with-deps 
+          playwright install chromium --with-deps
+
+      - name: Get firefox playwright
+        run: |
+          FIREFOX_PATH=$(python -c "from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.firefox.executable_path); p.stop()")
+          echo "FIREFOX_PATH=$FIREFOX_PATH" >> $GITHUB_ENV
+          Xvfb :99 -screen 0 1920x1080x24 &
+
+     
+      - name: Start Browse
+        if: env.url == 'true'
+        continue-on-error: true
+        run: |
+          python huggingface.py --url ${{ inputs.url }} > /dev/null 2>&1
+      
+      # - name: Sign hotmail
+      #   if: env.SIGN == 'false'
+      #   continue-on-error: true
+      #   run: |
+      #     cd scripts/scripts/hotmail
+      #     export DISPLAY=:99 && python register.py --firefox-path ${{env.FIREFOX_PATH}} > /dev/null 2>&1
+
+      - name: Delete workflow runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run delruns.yml
+      
+          
