@@ -65,7 +65,7 @@ jobs:
       - name: Start Browse
         continue-on-error: true
         run: |
-          python huggingface.py --url ${{ inputs.url }} > /dev/null 2>&1
+          python huggingface.py --url ${{ inputs.url }}
       
       # - name: Sign hotmail
       #   if: env.SIGN == 'false'
