@@ -4,7 +4,7 @@ import sys
 import os
 
 
-TIMEOUT = 600       # 10分钟
+TIMEOUT = 900       # 15分钟
 INTERVAL = 5        # 5秒
 
 
