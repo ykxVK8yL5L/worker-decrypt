@@ -2,7 +2,7 @@ name: Browse Huggingface Spaces Url
 
 on:
   schedule:
-    - cron: "12 */6 * * *"
+    - cron: "12 */2 * * *"
 
   workflow_dispatch:
   
