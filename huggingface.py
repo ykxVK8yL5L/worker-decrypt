@@ -62,3 +62,4 @@ if args.url:
     finally:
 
         browser.close()
+
